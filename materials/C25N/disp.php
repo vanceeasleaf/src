@@ -6,11 +6,12 @@ pair_coeff      * * $home/potentials/BNC.tersoff  C N
 $dump="
 dump_modify dump1 element C N
 ";
+$home=dirname(__FILE__);
+require_once("$home/structure.php");
 function structure(){
 	$home=dirname(__FILE__);
 	require_once("$home/../../config.php");
-	$php="$PHP_HOME/php";
-echo shell_exec("$php $home/structure.php");
+preFile();
 	echo"
 read_data structure
 ";

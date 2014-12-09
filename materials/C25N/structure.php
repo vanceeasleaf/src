@@ -6,6 +6,8 @@ function rotate($phi,$x,$y){
 	$y1=sin($phi)*$x+cos($phi)*$y;
 	return array($x1,$y1);
 }
+function preFile(){
+	global $usinglat,$xlen,$bond,$latx,$laty,$latz,$cell;
 $pos1=array(
 6.928400,13.000369,0.000000
 	,7.794450,16.500469,0.000000
@@ -116,4 +118,5 @@ map.in
 	fprintf($file,$content);
 	  $home=dirname(__FILE__);	
 	shell_exec("$home/../../latgen <in.disp");
+}
 ?>
