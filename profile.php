@@ -106,7 +106,7 @@ if($method=="inject"){
 }
 
 #if(!$upP)
-$upP=3;
+$upP=12;
 #calculate slope
 function nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 	$m=count($aveC);
@@ -277,6 +277,6 @@ function getJProfile($begin,$fileTempProfile,$fileTempAve){
 	fclose($ave);
 	//return array($aveC,$aveN,$aveTemp,$avejx);
 }
-getJProfile($begin,"jprofile.txt","avejpro.txt");
+//getJProfile($begin,"jprofile.txt","avejpro.txt");
 
 ?>

@@ -96,13 +96,13 @@ else if($argv[1]=="q"){
          	           $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorder 2>err;cd disorder;cp $srcHome/in.disorder .;$APP_PATH<in.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
          	          list($null,$disorder)=sscanf($disorderLine,"%d%f");
          	          pwrite($result,"\t$disorder");
-         	          
+         	          /*
          	             $nonequ=shell_exec("cd $projHome/$id/minimize;mkdir nonequ 2>err;cd nonequ;$php $srcHome/nonequ.php;");
          	          pwrite($result,"\t$nonequ");
          	          $nonequ3=shell_exec("cd $projHome/$id/minimize/nonequ ;$php $srcHome/nonequ3.php;");
          	          pwrite($result,"\t$nonequ3");
          	           $nonequ4=shell_exec("cd $projHome/$id/minimize/nonequ ;$php $srcHome/nonequ4.php;");
-         	          pwrite($result,"\t$nonequ4");
+         	          pwrite($result,"\t$nonequ4");*/
          	          }
          	       pwrite($result,"\n");
        }
