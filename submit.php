@@ -32,7 +32,7 @@ else if($argv[1]=="q"){
          for($j=0;$j<count($paras);$j++){
          	 pwrite($result,"\t".$paras[$j]);
          }
-         pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\tnonequ\tnonequ3\tnonequ4\n");
+         pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\tdisorderC\n");
         for($i=0;$i<count($obj);$i++){
         	$ob=$obj[$i];
         	        	$id=$ob["id"];
@@ -96,6 +96,9 @@ else if($argv[1]=="q"){
          	           $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorder 2>err;cd disorder;cp $srcHome/in.disorder .;$APP_PATH<in.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
          	          list($null,$disorder)=sscanf($disorderLine,"%d%f");
          	          pwrite($result,"\t$disorder");
+         	          $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorderC 2>err;cd disorderC;cp $srcHome/in.disorderC .;$APP_PATH<in.disorderC 2>err 1>log;tail -1 disorder.txt  2>err;");
+         	          list($null,$disorderC)=sscanf($disorderLine,"%d%f");
+         	          pwrite($result,"\t$disorderC");
          	          /*
          	             $nonequ=shell_exec("cd $projHome/$id/minimize;mkdir nonequ 2>err;cd nonequ;$php $srcHome/nonequ.php;");
          	          pwrite($result,"\t$nonequ");
