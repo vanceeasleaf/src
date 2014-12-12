@@ -33,10 +33,26 @@ else if($argv[1]=="q"){
          	 pwrite($result,"\t".$paras[$j]);
          }
          pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\tdisorderC\n");
+         if($universe){
+         	$ff=fopen("$projHome/pbs/info","r");
+         		$n=0;
+         while(list($uid[$n],$upid[$n],$ulog[$n],$uscreen[$n])=fscanf($ff,"%d%s%s%s")){
+		$n++;
+		}
+         }
         for($i=0;$i<count($obj);$i++){
         	$ob=$obj[$i];
         	        	$id=$ob["id"];
         	$pid=$ob["pid"];
+         	if($universe){
+         		$pid=intval($upid[$i]);
+         		if(!is_file("$projHome/pbs/$ulog[$i]"))continue;
+         		if(!is_file("$projHome/pbs/$uscreen[$i]"))continue;
+         		shell_exec("cp $projHome/pbs/$ulog[$i] $projHome/$id/log.lammps");
+         		shell_exec("cp $projHome/pbs/$uscreen[$i] $projHome/$id/log.out");
+         		shell_exec("cp $projHome/pbs/minimize/$ulog[$i] $projHome/$id/minimize/log.lammps");
+         		shell_exec("cp $projHome/pbs/minimize/$uscreen[$i] $projHome/$id/minimize/log.out");
+         	}
         	$runTime=$ob["runTime"];
         	$lastline=shell_exec("cd $projHome/$id;tail -1 log.out 2>log");
         	$qstat=shell_exec("qstat $pid 2>&1|tail -1 ");
@@ -110,7 +126,6 @@ else if($argv[1]=="q"){
          	       pwrite($result,"\n");
        }
 }else if($argv[1]=="clean"){clean();
-
 }else if($argv[1]=="stop"){
 	printf("Comfirm to stop all the simulation in this project?[y/n]");
 $stdin = fopen('php://stdin', 'r');
