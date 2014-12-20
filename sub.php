@@ -4,21 +4,16 @@ $projHome=dirname(__FILE__);
 $projName=basename($projHome);
 
 	$units="metal";
-	$species="CC-small";
-	$method="nvt";
+	$species="SiGe";
+	$method="greenkubo";
 	$nodes=1;
-$procs=4;$queue="q1.1";
-$uprocs=1;
-$unodes=12;$uqueue="q1.2";
-$universe=1;
-$runTime=10000000;
-if($stage==1){
-for($mass=9;$mass<=15;$mass++){
-for($i=0;$i<5;$i++){	
-submit("\$seed=13515;\$mass=$mass;\$cell=\"C12N/$i\";\$thick=1.44;\$langevin=0;\$hdeta=8*\$deta;\$usinglat=1;\$timestep=.5e-3;\n\$latx=11;\$laty=1;\$latz=1;");
-}
-}
-uexec();
+	$procs=4;$queue="q1.4";
+	
+	$runTime=10000000;
+	if($stage==1){
+	for($ratio=0.1;$ratio<=0.9;$ratio+=.1){
+	submit("\$computeTc=1;\$ratio=$ratio;\$usinglat=1;\$hdeta=\$deta;\$latx=3;\$laty=3;\$latz=3;",array("ratio"=>$ratio));
+	}
 }
 shell_exec("cp $projHome/sub.php $srcHome;");
 require_once("$srcHome/submit.php");

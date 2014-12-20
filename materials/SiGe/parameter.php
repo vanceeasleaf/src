@@ -16,7 +16,7 @@ $xlen=100*Unit($srcUnit,"l");
 $latx=288;$laty=4;$latz=4;
 $ylen=20*Unit($srcUnit,"l");
 $thick=3.35*Unit($srcUnit,"l");
-$deta=1.4*Unit($srcUnit,"l");
+$deta=2.4*Unit($srcUnit,"l");
 $T=500*Unit("metal","T");//K for all units
 $Thi=$T+10*Unit("metal","T");
 $Tlo=$T - 10*Unit("metal","T");

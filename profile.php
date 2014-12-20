@@ -6,12 +6,16 @@ fprintf($result,"method:$method\n");
 if($method=="greenkubo"){
 	$gk_result=shell_exec("tail -1 $fileKappa 2>err");
 	list($step,$kx,$ky,$kz)=sscanf($gk_result,"%d%f%f%f");
-	fprintf($result,"kx=%f ky=%f kz=%f\n",$kx,$ky,$kz);
+	fprintf($result,"kappa_src=%f\n",$kx);
 	exit();
 }
-function getTempProfile($begin,$fileTempProfile,$fileTempAve){
+function getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$tcfactor,$zfactor){
 	$file=fopen($fileTempProfile,"r");
 	if(!$file)exit("fail to open $fileTempProfile\n");
+		$projHome=dirname($fileTempAve);
+	$fo=fopen("$projHome/convergenceT.txt","w");
+	$fk=fopen("$projHome/convergenceK.txt","w");
+	fprintf($fo,"step\ttemperature\tjx\n");
 	$n=0;
 	for($i=0;$i<3;$i++)fgets($file);
 	while($info=fscanf($file,"%d %d\n")){
@@ -30,13 +34,33 @@ function getTempProfile($begin,$fileTempProfile,$fileTempAve){
 			if($n>$begin){
 				$aveTemp[$m]+=$v_temp[$i];
 				$avejx[$m]+=$jx[$i];
+				//convergence
+				if($m==12){
+					$att=$aveTemp[$m]/($n-$begin);
+					$atj=$avejx[$m]/($n-$begin);
+					fprintf($fo,"$n\t$att\t$atj\n");
+				}
 				$aveN[$m]+=$Ncount[$i];
 				$aveC[$m]=$Coord[$i];
 			}
 			$m++;
 		}
+		if($n>$begin+1){
+			for($bin=0;$bin<$m;$bin++){
+			$aveTemp1[$bin]=$aveTemp[$bin]/($n-$begin-1);
+			$avejx1[$bin]=$avejx[$bin]/($n-$begin-1);
+			$aveN1[$bin]=$aveN[$bin]/($n-$begin-1);
+			//$aveC[$bin]/=$ntime-$begin-1;
+			//if($bin==6754)echo ($ntime-$begin-1)."\t".$aveC[$bin]."\n";
+			}
+			list($slope,$flux_bulk)=sslope($aveC,$aveTemp1,$aveN1,$avejx1,$upP,$deta,$S);
+			$kappa=$fx[$n]/$slope*$tcfactor*$zfactor;
+			fprintf($fk,"$n\t$kappa\n");
+		}
 		$n++;
+
 	}
+	fclose($fo);
 	$ntime=$n;
 	for($bin=0;$bin<$m;$bin++){
 		$aveTemp[$bin]/=$ntime-$begin-1;
@@ -52,15 +76,17 @@ function getTempProfile($begin,$fileTempProfile,$fileTempAve){
 	}
 	fclose($ave);
 $home=dirname(__FILE__);
-	$m=strrpos($fileTempAve,'/');
-	$projHome=substr($fileTempAve,0,$m);
+
 	shell_exec("cp $home/plot/tempAve.dis $projHome;cd $projHome;gnuplot tempAve.dis 2>>err;");
 	return array($aveC,$aveN,$aveTemp,$avejx);
 }
 
-list($aveC,$aveN,$aveTemp,$avejx)=getTempProfile($begin,$fileTempProfile,$fileTempAve);
-$flux_src=getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate);
+
+list($flux_src,$fx)=getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate);
+list($aveC,$aveN,$aveTemp,$avejx)=getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$tcfactor,$zfactor);
 function getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate){
+	$fx=array();
+	$st=$begin;
 	if($method=="nvt"){
 	$nvtWork=fopen($fileNvtWork,"r");
 	if(!$nvtWork)exit("fail to open $fileNvtWork\n");
@@ -69,15 +95,16 @@ function getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$
 	$co=0;
 	while(list($f_step,$f_hot)=fscanf($nvtWork,"%d%f")){
 		$step[$co]=$f_step;
-	$hot[$co++]=$f_hot;
+		$hot[$co]=$f_hot;
+		if($co>$st)
+		$hotslope=abs($hot[$co]-$hot[$st])/($step[$co]-$step[$st]);
+		$J=$hotslope/$timestep;
+		$flux_src=$J/$S;
+		$fx[$co]=$flux_src;
+		$co++;
 	}
-	$st=$begin;
-	$hotslope=abs($hot[$co-1]-$hot[$st-1])/($step[$co-1]-$step[$st-1]);
-	$J=$hotslope/$timestep;
-
-	$flux_src=$J/$S;
 	fclose($nvtWork);
-}
+	}
 if($method=="muller"){
 	$file=fopen($fileSwap,"r");
 	fscanf($file,"");
@@ -88,21 +115,23 @@ if($method=="muller"){
 			$step[$co]=$f_step;
 	$hot[$co]=$heat_swap;
 	$sum+=$heat_swap;
-	$co++;
-	}
-	fclose($file);
-		$st=$begin;
-	$ave_heat_swap=abs($hot[$co-1]-$hot[$st-1])/($step[$co-1]-$step[$st-1]);
-	
+	if($co>$st)
+	$ave_heat_swap=abs($hot[$co]-$hot[$st])/($step[$co]-$step[$st]);
 	if($conti)$ave_heat_swap=$sum*$lz/$co/$excRate;
 	$J=$ave_heat_swap/($timestep);
 	$flux_src=$J/(2*$S);
+	$fx[$co]=$flux_src;
+	$co++;
+	}
+	fclose($file);
+
 }
 if($method=="inject"){
 	$J=$swapEnergyRate;
 	$flux_src=$J/(2*$S);
+	$fx[0]=$flux_src;
 }
-	return $flux_src;
+	return array($flux_src,$fx);
 }
 
 #if(!$upP)
@@ -152,13 +181,18 @@ $J_bulk=($J_bulk1+$J_bulk2)/2;
 $J_bulkc=($J_bulkc1+$J_bulkc2)/2;
 return array($slope,$J_bulk,$J_bulkc);
 }
-if($method=="nvt"){
-list($slope,$J_bulk)=nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP);
-$flux_bulk=$J_bulk/($deta*$S);
-}
-if($method=="muller"||$method=="inject"){
-list($slope,$J_bulk)=mullerSlope($aveC,$aveTemp,$aveN,$avejx,$upP);
-$flux_bulk=$J_bulk/($deta*$S);
+list($slope,$flux_bulk)=sslope($aveC,$aveTemp,$aveN,$avejx,$upP,$deta,$S);
+function sslope($aveC,$aveTemp,$aveN,$avejx,$upP,$deta,$S){
+	global $method;
+	if($method=="nvt"){
+	list($slope,$J_bulk)=nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP);
+	$flux_bulk=$J_bulk/($deta*$S);
+	}
+	if($method=="muller"||$method=="inject"){
+	list($slope,$J_bulk)=mullerSlope($aveC,$aveTemp,$aveN,$avejx,$upP);
+	$flux_bulk=$J_bulk/($deta*$S);
+	}
+	return array($slope,$flux_bulk);
 }
 $kappa_src=$flux_src/$slope*$tcfactor*$zfactor;
 $kappa_bulk=$flux_bulk/$slope*$tcfactor*$zfactor;
