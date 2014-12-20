@@ -3,6 +3,8 @@ $initsub=1;
 require_once("sub.php");
 require_once("$srcHome/config.php");
 require_once("$srcHome/funcs.php");
+$home=dirname(__FILE__);
+require_once("$srcHome/exec.php");
 function pwrite($fp,$s){   
 	printf("$s");
 	fprintf($fp,"$s");
@@ -134,12 +136,22 @@ if($s!="y")exit("exit with no change.");
 stop();
 
 }
+
 function stop(){
 	global $projName;
 		global $projHome;
-		
+		global $single;
 		//容易kill掉同名工程程序
-
+if($single){
+	$obj=getObjs("$projHome/qloops.txt");
+	         for($i=0;$i<count($obj);$i++){
+         	 	$pa=$obj[$i];
+         	 	$pid=$pa["pid"];
+         	 	echo "kill:$pid\n";
+         	 	exec::kill($pid);
+         	 }
+return;
+}
 $tarname="zy_$projName"."_";
 if(strlen($tarname)<10){
 	shell_exec("qstat|grep $tarname>tmp");
@@ -178,6 +190,7 @@ while($json_string=fgets($qloop)){
         */
 }
 function getObjs($fileName){
+	if(!is_file($fileName))return;//执行程序之前会清理上次的，读取qloop.txt，如果没有上次的文件就不清理。
 		$qloop=fopen($fileName,"r");
 		$n=0;
 		while($json_string=fgets($qloop)){

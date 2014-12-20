@@ -11,8 +11,8 @@ $projName=basename($projHome);
 	
 	$runTime=10000000;
 	if($stage==1){
-	for($ratio=0.1;$ratio<=0.9;$ratio+=.1){
-	submit("\$computeTc=1;\$ratio=$ratio;\$usinglat=1;\$hdeta=\$deta;\$latx=3;\$laty=3;\$latz=3;",array("ratio"=>$ratio));
+	for($ratio=0.05;$ratio<=0.95;$ratio+=.05){
+	submit("\$seed=13513;\$computeTc=1;\$ratio=$ratio;\$usinglat=1;\$hdeta=\$deta;\$latx=3;\$laty=3;\$latz=3;",array("ratio"=>$ratio));
 	}
 }
 shell_exec("cp $projHome/sub.php $srcHome;");

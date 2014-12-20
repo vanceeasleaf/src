@@ -2,13 +2,16 @@
 	require_once("genPbs.php");
 	require_once("genPbss.php");
 	require_once("units.php");
-
+require_once("$srcHome/exec.php");
 if(!$projHome)exit("please set your project path!");
 date_default_timezone_set("PRC");
 function setSubProject($index){
 global $projHome;
+global $single;
+if($single)$pid=exec::background("sh $projHome/$index/run.sh");//$pid=exec("cd $projHome/$index;sh run.sh > /dev/null & echo $!");
+else
 $pid=shell_exec("cd $projHome/$index;qsub lammps.pbs;");
-echo "submit: $projHome/$index\n";
+echo "submit: $pid\t$projHome/$index\n";
 #sleep(1);
 return intval($pid);
 }
@@ -57,6 +60,7 @@ function submit(){
 	$idx++;
 }
 function uexec(){
+	if($universe){
 	global $projHome;
 	$home=dirname(__FILE__);
 	shell_exec("cd $projHome/pbs;ls *.pbs>tmp;");
@@ -93,7 +97,7 @@ function uexec(){
 			fprintf($fi,"$j\t$pid\tlog.$lb.$b\tscreen.$lb.$b\n");
 		}
 	}	
-	
+	}
 }	
 function swap(&$a,&$b){
 	$tmp=$b;$b=$a;$a=$tmp;
@@ -108,6 +112,7 @@ function makeLoopFile($cmd,$idx){
 		global $nodes;
 	global $procs;
 	global $uqueue;
+	global $single;
 		global $universe;
 	if($universe){
 		echo "prepared: $projHome/$idx\n";
@@ -122,8 +127,12 @@ function makeLoopFile($cmd,$idx){
 		if($idx%$len==0)
 		genPbss("$projHome","zy_$projName"."_",$uqueue,$unodes,$uprocs,$idx,$cores);
 	}
+
 	shell_exec("mkdir -p $projHome/$idx;cd $projHome/$idx;mkdir -p minimize");
-genPbs("$projHome/$idx","zy_$projName"."_$idx",$queue,$nodes,$procs);
+		if($single){
+		genSh("$projHome/$idx","zy_$projName"."_$idx",$procs);
+	}
+	if(!$universe&&!$single)genPbs("$projHome/$idx","zy_$projName"."_$idx",$queue,$nodes,$procs);
 	write("<?php\n$cmd;\n\$projHome=\"$projHome/$idx\";\n?>","$projHome/$idx/qloop.php");
 	write("<?php\n\$species=\"$species\";\n\$units=\"$units\";\n\$method=\"$method\";\n?>","$projHome/$idx/species.php");
 }

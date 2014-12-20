@@ -34,4 +34,21 @@ $OMPI_HOME/bin/mpirun  --mca btl openib,self  -machinefile \$PBS_NODEFILE -np \$
 
 exit 0");
 }
+function genSh($path,$disp,$procs){
+		require("config.php");
+		$pbs=fopen("$path/run.sh","w");
+			$home=dirname(__FILE__);	
+	$php="$PHP_HOME/php";
+$LOGOUT="log.out";
+fprintf($pbs,
+"#!/bin/bash -x
+#$disp
+cd  $path/minimize
+$php $home/minimize/input.php \"$path/qloop.php\" \"$path/species.php\">input   
+mpirun   -np $procs $APP_PATH <input >$path/minimize/$LOGOUT 2>/dev/null
+cd  $path
+$php $home/input.php \"$path/qloop.php\" \"$path/species.php\">input
+mpirun   -np $procs $APP_PATH <input >$path/$LOGOUT 2>/dev/null
+exit 0");
+}
 ?>
