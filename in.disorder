@@ -10,5 +10,6 @@ compute myRDF all rdf_diff 1000 2 2
 
 fix 1 all ave/time 100 1 100 c_myRDF file rdf.txt mode vector
 variable disorder equal trap(c_myRDF[4]/c_myRDF[2])
-fix 1 all ave/time 100 1 100 v_disorder file disorder.txt 
+variable rd equal trap(c_myRDF[2])
+fix 1 all ave/time 100 1 100 v_disorder  v_rd file disorder.txt 
 run 1

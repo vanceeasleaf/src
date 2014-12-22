@@ -15,7 +15,24 @@ $laty=floor($ylen/$bond);
 $latz=floor($thick/$bond);
 	}
 $home=dirname(__FILE__);
-//shell_exec("cp $home/pos/$cell cell.in");
+
+if($cell){
+	shell_exec("cp $home/pos/$cell cell.in");
+	$content=
+"7
+y
+cell.in
+y
+$latx $laty $latz 
+1
+3
+Si Ge
+0
+SiGe.xyz
+structure
+map.in
+";
+}else{
 $content=
 "1
 $bond
@@ -36,6 +53,7 @@ SiGe.xyz
 structure
 map.in
 ";
+}
 		$file=fopen("in.disp","w");
 	fprintf($file,$content);
 	  $home=dirname(__FILE__);	

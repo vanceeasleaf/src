@@ -34,7 +34,7 @@ else if($argv[1]=="q"){
          for($j=0;$j<count($paras);$j++){
          	 pwrite($result,"\t".$paras[$j]);
          }
-         pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\tdisorderC\n");
+         pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\trd\tdisorderC\tratio\n");
          if($universe){
          	$ff=fopen("$projHome/pbs/info","r");
          		$n=0;
@@ -83,6 +83,7 @@ else if($argv[1]=="q"){
         	}
 
         	echo tabjoin($id,$percent,$status,$queue,$nodes."x".$procs);
+        	fprintf($result,"$id\t");
         	for($j=0;$j<count($paras);$j++){
         		$key=$paras[$j];
          	 printf("\t%s",$ob[$key]===""?"def":$ob[$key]);
@@ -112,11 +113,13 @@ else if($argv[1]=="q"){
          	        pwrite($result,"\t$epn");
          	          }
          	           $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorder 2>err;cd disorder;cp $srcHome/in.disorder .;$APP_PATH<in.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
-         	          list($null,$disorder)=sscanf($disorderLine,"%d%f");
-         	          pwrite($result,"\t$disorder");
+         	          list($null,$disorder,$rd)=sscanf($disorderLine,"%d%f%f");
+         	          pwrite($result,"\t$disorder\t$rd");
          	          $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorderC 2>err;cd disorderC;cp $srcHome/in.disorderC .;$APP_PATH<in.disorderC 2>err 1>log;tail -1 disorder.txt  2>err;");
          	          list($null,$disorderC)=sscanf($disorderLine,"%d%f");
          	          pwrite($result,"\t$disorderC");
+         	          $ratio=getRatio("$projHome/$id/minimize/structure");
+         	          pwrite($result,"\t$ratio");
          	          /*
          	             $nonequ=shell_exec("cd $projHome/$id/minimize;mkdir nonequ 2>err;cd nonequ;$php $srcHome/nonequ.php;");
          	          pwrite($result,"\t$nonequ");
@@ -136,7 +139,23 @@ if($s!="y")exit("exit with no change.");
 stop();
 
 }
-
+function getRatio($path){
+		$fp=fopen($path,"r");
+		fgets($fp);
+	list($natom)=fscanf($fp,"%d");
+	list($ntype)=fscanf($fp,"%d");
+	$n=0;
+	while($label!=Atoms&&$n<20){
+		list($label)=fscanf($fp,"%s");
+		$n++;
+	}
+	fgets($fp);
+	for($i=0;$i<$ntype;$i++)$a[$i]=0;
+	while(list($null,$type)=fscanf($fp,"%d%d")){
+		$a[$type-1]++;
+	}
+	return $a[1]/$natom;
+}
 function stop(){
 	global $projName;
 		global $projHome;

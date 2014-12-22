@@ -60,6 +60,7 @@ function submit(){
 	$idx++;
 }
 function uexec(){
+	global $universe;
 	if($universe){
 	global $projHome;
 	$home=dirname(__FILE__);

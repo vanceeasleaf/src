@@ -8,6 +8,9 @@ function rotate($phi,$x,$y){
 	$y1=sin($phi)*$x+cos($phi)*$y;
 	return array($x1,$y1);
 }
+function preFile(){
+	global $usinglat,$xlen,$bond,$latx,$laty,$latz,$cell,$ratio,$metro,$ylen;
+
 $pos1=array(
 6.928400,13.000369,0.000000
 	,7.794450,16.500469,0.000000
@@ -126,6 +129,8 @@ rand_map.in
 	if(!$metro){
 		shell_exec("cp rand_structure structure");
 	}else{
-		shell_exec("$php $home/input.php>in.metro; $APP_PATH<in.metro >metro.log ;");
+		global $qloo,$spe,$php,$APP_PATH;$fd=fopen("degug","w");fprintf($fd,"$APP_PATH 1");
+		shell_exec("$php $home/input.php $qloo $spe >in.metro 2>>err; $APP_PATH<in.metro >metro.log ;");
 	}
+}
 ?>
