@@ -7,9 +7,11 @@ dimension 3
 pair_style        lj/cut 19
 pair_coeff      * * 1 1
 compute myRDF all rdf_diff 1000 2 2 
-
-fix 1 all ave/time 100 1 100 c_myRDF file rdf.txt mode vector
+compute myRDF1 all rdf_diff 1000 1 2 
+compute myRDF2 all rdf_diff 1000 2 1 
+compute myRDF3 all rdf_diff 1000 1 1 
+fix 1 all ave/time 1 1 1 c_myRDF3[1] c_myRDF3[2] c_myRDF1[2] c_myRDF2[2] c_myRDF[2] file rdf.txt mode vector
 variable disorder equal trap(c_myRDF[4]/c_myRDF[2])
 variable rd equal trap(c_myRDF[2])
-fix 1 all ave/time 100 1 100 v_disorder  v_rd file disorder.txt 
-run 1
+fix 2 all ave/time 1 1 1 v_disorder  v_rd file disorder.txt 
+run 0

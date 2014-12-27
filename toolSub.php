@@ -24,6 +24,8 @@ function write($cmd,$fileName){
 }
 function submit(){
 	global $projHome;
+	global $stage;
+	if($stage!=1)return;
 	global $projName;
 	$argc= func_num_args();    #获取参数个数
        $argv = func_get_args();    #获取参数值

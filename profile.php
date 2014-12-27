@@ -4,11 +4,8 @@ require_once("postMini.php");
 $result=fopen($fileResult,"w");
 fprintf($result,"method:$method\n");
 if($method=="greenkubo"){
-	if(!$computeTc){
-		$gk_result=shell_exec("tail -1 $fileKappa 2>err");
-		list($step,$kx,$ky,$kz)=sscanf($gk_result,"%d%f%f%f");
-		fprintf($result,"kappa_src=%f\n",$kx);
-	}else{
+
+	if($computeTc){
 			$projHome=dirname($fileKappa);
 		shell_exec("tail -2000 $fileKappa>$projHome/tailKp.txt 2>err");
 		$file=fopen("$projHome/tailKp.txt","r");
@@ -19,6 +16,19 @@ if($method=="greenkubo"){
 			}
 			$kx=$s/$n;
 				fprintf($result,"kappa_src=%f\n",$kx);
+	}
+	else if($fourierTc){
+		$home=dirname(__FILE__);
+		$v=$lx*$ly*$lz;
+$kb=$boltz[$units];
+		$factor=$corRate*$timestep/($v*$kb*$T*$T)*$zfactor*$tcfactor;
+$kx=shell_exec("cd $projHome;	$home/correlation/corr $factor");//generate a correlation file named jcor.txt
+				fprintf($result,"kappa_src=%f\n",$kx);
+	}else
+	{
+		$gk_result=shell_exec("tail -1 $fileKappa 2>err");
+		list($step,$kx,$ky,$kz)=sscanf($gk_result,"%d%f%f%f");
+		fprintf($result,"kappa_src=%f\n",$kx);
 	}
 	exit();
 }

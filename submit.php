@@ -34,7 +34,7 @@ else if($argv[1]=="q"){
          for($j=0;$j<count($paras);$j++){
          	 pwrite($result,"\t".$paras[$j]);
          }
-         pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\trd\tdisorderC\tratio\n");
+         pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\trd\tdisorderC\tratio\trdfs\n");
          if($universe){
          	$ff=fopen("$projHome/pbs/info","r");
          		$n=0;
@@ -120,6 +120,9 @@ else if($argv[1]=="q"){
          	          pwrite($result,"\t$disorderC");
          	          $ratio=getRatio("$projHome/$id/minimize/structure");
          	          pwrite($result,"\t$ratio");
+         	          
+         	          $rdfs=getRdf("$projHome/$id/minimize/disorder/rdf.txt",$ratio);
+         	          pwrite($result,"\t$rdfs");
          	          /*
          	             $nonequ=shell_exec("cd $projHome/$id/minimize;mkdir nonequ 2>err;cd nonequ;$php $srcHome/nonequ.php;");
          	          pwrite($result,"\t$nonequ");
@@ -155,6 +158,19 @@ function getRatio($path){
 		$a[$type-1]++;
 	}
 	return $a[1]/$natom;
+}
+function getRdf($path,$ratio){
+		$fp=fopen($path,"r");
+	for($i=0;$i<3;$i++)fgets($fp);
+	list($null,$n)=fscanf($fp,"%d%d");
+	$s=0;
+	for($i=0;$i<$n;$i++){
+		list($id,$r,$g11,$g12,$g21,$g22)=fscanf($fp,"%d%f%f%f%f%f");
+		$g=-($ratio*$ratio*$g11+$ratio*(1-$ratio)*$g12*2+(1-$ratio)*(1-$ratio)*$g22);
+		$p=$r*$r*($g-1);
+		$s+=$p;
+	}
+	return $s;
 }
 function stop(){
 	global $projName;

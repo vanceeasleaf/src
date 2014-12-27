@@ -163,16 +163,23 @@ dump jprofile all custom $dumpRate $fileJProfile id v_jx v_jy v_jz v_temp v_jcx 
 $v=$lx*$ly*$lz;
 $kb=$boltz[$units];
 $factor=$corRate*$timestep/($v*$kb*$T*$T)*$zfactor*$tcfactor;
+if($fourierTc){
+echo "
+	fix               j_out  all  ave/time  1  1  1  c_jflux[1] c_jflux[2] c_jflux[3]  file  jin.txt 
+";
+}
 if($computeTc){
 	$rfactor=$tcfactor*$zfactor;
 	if(!$gstart)$gstart=20000;
 	echo "
 variable          factor_ac equal 1.0
 variable          factor_tc equal $rfactor
-compute           tc all tc c_thermo_temp c_jflux v_factor_ac v_factor_tc x first 50000 1000000 500000
+compute           tc all tc c_thermo_temp c_jflux v_factor_ac v_factor_tc x first $gstart 1000000 500000
 fix               tc_out  all  ave/time  1  1  1  c_tc   file  $fileKappa
 		";
-}else{
+}
+if(!$fourierTc&&!$computeTc)
+{
     	echo "
     		fix ss all ave/correlate $corRate $corNum $aveRate c_jflux[1] c_jflux[2] c_jflux[3] type auto ave running
 variable k11 equal trap(f_ss[3])*$factor
