@@ -174,7 +174,7 @@ if($computeTc){
 	echo "
 variable          factor_ac equal 1.0
 variable          factor_tc equal $rfactor
-compute           tc all tc c_thermo_temp c_jflux v_factor_ac v_factor_tc x first $gstart 1000000 500000
+compute           tc all tc c_thermo_temp c_jflux v_factor_ac v_factor_tc x first $gstart 0 500000
 fix               tc_out  all  ave/time  1  1  1  c_tc   file  $fileKappa
 		";
 }

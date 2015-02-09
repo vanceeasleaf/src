@@ -158,7 +158,7 @@ if($method=="inject"){
 }
 
 #if(!$upP)
-$upP=12;
+$upP=2;
 #calculate slope
 function nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 	$m=count($aveC);

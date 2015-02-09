@@ -2,18 +2,14 @@
 $srcHome="/home/xggong/home1/zhouy/tcscripts/src";
 $projHome=dirname(__FILE__);
 $projName=basename($projHome);
-	$units="metal";
-	$species="CC-small";
-	$method="greenkubo";
+if($stage==1){
+	$species="Ar-isotope";
+	$method="muller";
 	$nodes=1;
 $procs=4;$queue="q1.4";
-$runTime=5000000;
-//$universe=1;$unodes=12;$uprocs=1;$uqueue="q1.2";
-if($stage==1){
-for($i=1;$i<=20;$i++){
-submit("\$fourierTc=1;\$seed=132512$i;\$nvt=1;\$mass=9.02;\$cell=\"CN/0\";\$thick=1.44;\$langevin=0;\$hdeta=8*\$deta;\$usinglat=1;\$timestep=.5e-3;\n\$latx=1;\$laty=1;\$latz=1;");
+for($ratio=0;$ratio<=1;$ratio+=0.01){
+submit("\$ratio=$ratio");
 }
-uexec();
 }
 shell_exec("cp $projHome/sub.php $srcHome;");
 require_once("$srcHome/submit.php");

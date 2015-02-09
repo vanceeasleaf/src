@@ -112,17 +112,20 @@ else if($argv[1]=="q"){
          	          
          	        pwrite($result,"\t$epn");
          	          }
-         	           $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorder 2>err;cd disorder;cp $srcHome/in.disorder .;$APP_PATH<in.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
-         	          list($null,$disorder,$rd)=sscanf($disorderLine,"%d%f%f");
+         	         //  $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorder 2>err;cd disorder;cp $srcHome/in.disorder .;$APP_PATH<in.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
+         	         // list($null,$disorder,$rd)=sscanf($disorderLine,"%d%f%f");
+         	          //pwrite($result,"\t$disorder\t$rd");
+         	      //    $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorderdist 2>err;cd disorderdist;cp $srcHome/indist.disorder .;$APP_PATH<indist.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
+         	     //   list($null,$disorder,$rd)=sscanf($disorderLine,"%d%f%f");
          	          pwrite($result,"\t$disorder\t$rd");
-         	          $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorderC 2>err;cd disorderC;cp $srcHome/in.disorderC .;$APP_PATH<in.disorderC 2>err 1>log;tail -1 disorder.txt  2>err;");
-         	          list($null,$disorderC)=sscanf($disorderLine,"%d%f");
-         	          pwrite($result,"\t$disorderC");
-         	          $ratio=getRatio("$projHome/$id/minimize/structure");
+         	         // $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorderC 2>err;cd disorderC;cp $srcHome/in.disorderC .;$APP_PATH<in.disorderC 2>err 1>log;tail -1 disorder.txt  2>err;");
+         	          //list($null,$disorderC)=sscanf($disorderLine,"%d%f");
+         	          //pwrite($result,"\t$disorderC");
+         	         // $ratio=getRatio("$projHome/$id/minimize/structure");
          	          pwrite($result,"\t$ratio");
          	          
-         	          $rdfs=getRdf("$projHome/$id/minimize/disorder/rdf.txt",$ratio);
-         	          pwrite($result,"\t$rdfs");
+         	          //$rdfs=getRdf("$projHome/$id/minimize/disorder/rdf.txt",$ratio);
+         	          //pwrite($result,"\t$rdfs");
          	          /*
          	             $nonequ=shell_exec("cd $projHome/$id/minimize;mkdir nonequ 2>err;cd nonequ;$php $srcHome/nonequ.php;");
          	          pwrite($result,"\t$nonequ");
