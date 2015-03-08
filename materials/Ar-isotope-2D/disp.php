@@ -19,7 +19,8 @@ $laty=floor($ylen/(2*$bond));
 $latz=floor($thick/(2*$bond));
 	}
 	echo "
-lattice            fcc    $latticeConstant
+lattice            custom    $latticeConstant a1 1.0 0.0 0.0 a2 0 1.0 0.0 a3 0.0 0.0 10 &
+ basis 0.0 0.0 0.5
 region            box  block 0  $latx  0 $laty  0 $latz  units lattice
 create_box     2  box
 create_atoms     1  box

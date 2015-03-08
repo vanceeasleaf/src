@@ -1,37 +1,45 @@
 <?php
+/**
+ * MD生成的文件的后处理
+ * @author zhouy
+ */
+ 
 require_once("discript.php");
 require_once("postMini.php");
 $result=fopen($fileResult,"w");
 fprintf($result,"method:$method\n");
-if($method=="greenkubo"){
 
+/* greenkubo法的后处理*/
+if($method=="greenkubo"){
 	if($computeTc){
-			$projHome=dirname($fileKappa);
+		$projHome=dirname($fileKappa);
 		shell_exec("tail -2000 $fileKappa>$projHome/tailKp.txt 2>err");
 		$file=fopen("$projHome/tailKp.txt","r");
 		$s=0;$n=0;
-			while(list($step,$kp)=fscanf($file,"%d %f\n")){
-				$s+=$kp;
-				$n++;
-			}
-			$kx=$s/$n;
-				fprintf($result,"kappa_src=%f\n",$kx);
+		while(list($step,$kp)=fscanf($file,"%d %f\n")){
+			$s+=$kp;
+			$n++;
+		}
+		$kx=$s/$n;
 	}
 	else if($fourierTc){
 		$home=dirname(__FILE__);
 		$v=$lx*$ly*$lz;
-$kb=$boltz[$units];
+		$kb=$boltz[$units];
 		$factor=$corRate*$timestep/($v*$kb*$T*$T)*$zfactor*$tcfactor;
-$kx=shell_exec("cd $projHome;	$home/correlation/corr $factor");//generate a correlation file named jcor.txt
-				fprintf($result,"kappa_src=%f\n",$kx);
+		$kx=shell_exec("cd $projHome;	$home/correlation/corr $factor");//generate a correlation file named jcor.txt
 	}else
 	{
 		$gk_result=shell_exec("tail -1 $fileKappa 2>err");
 		list($step,$kx,$ky,$kz)=sscanf($gk_result,"%d%f%f%f");
-		fprintf($result,"kappa_src=%f\n",$kx);
 	}
+	fprintf($result,"kappa_src=%f\n",$kx);
 	exit();
 }
+
+/**
+ * 求平均温度分布和平均热流分布
+ */
 function getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$tcfactor,$zfactor){
 	$file=fopen($fileTempProfile,"r");
 	if(!$file)exit("fail to open $fileTempProfile\n");
@@ -98,8 +106,9 @@ function getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$
 		fprintf($ave,"%d\t%f\t%f\t%f\t%f\n",$i+1,$aveC[$i],$aveN[$i],$aveTemp[$i],$avejx[$i]);
 	}
 	fclose($ave);
-$home=dirname(__FILE__);
-
+	
+	/* 作图*/
+	$home=dirname(__FILE__);
 	shell_exec("cp $home/plot/tempAve.dis $projHome;cd $projHome;gnuplot tempAve.dis 2>>err;");
 	return array($aveC,$aveN,$aveTemp,$avejx);
 }
@@ -107,9 +116,17 @@ $home=dirname(__FILE__);
 
 list($flux_src,$fx)=getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate);
 list($aveC,$aveN,$aveTemp,$avejx)=getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$tcfactor,$zfactor);
+/**
+ * 获得各非平衡方法的热流
+ * @author zhouy
+ * @input 
+ * @output 最后平均的热流，前N段时间的平均热流
+ */
 function getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate){
 	$fx=array();
 	$st=$begin;
+	
+	/* nvt method*/
 	if($method=="nvt"){
 	$nvtWork=fopen($fileNvtWork,"r");
 	if(!$nvtWork)exit("fail to open $fileNvtWork\n");
@@ -128,83 +145,106 @@ function getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$
 	}
 	fclose($nvtWork);
 	}
-if($method=="muller"){
-	$file=fopen($fileSwap,"r");
-	fscanf($file,"");
-	fscanf($file,"");
-	$co=0;
-	$sum=0;
-	while(list($f_step,$heat_swap)=fscanf($file,"%d%f")){
-			$step[$co]=$f_step;
-	$hot[$co]=$heat_swap;
-	$sum+=$heat_swap;
-	if($co>$st)
-	$ave_heat_swap=abs($hot[$co]-$hot[$st])/($step[$co]-$step[$st]);
-	if($conti)$ave_heat_swap=$sum*$lz/$co/$excRate;
-	$J=$ave_heat_swap/($timestep);
-	$flux_src=$J/(2*$S);
-	$fx[$co]=$flux_src;
-	$co++;
+	
+	/* muller method*/
+	if($method=="muller"){
+		$file=fopen($fileSwap,"r");
+		fscanf($file,"");
+		fscanf($file,"");
+		$co=0;
+		$sum=0;
+		while(list($f_step,$heat_swap)=fscanf($file,"%d%f")){
+				$step[$co]=$f_step;
+		$hot[$co]=$heat_swap;
+		$sum+=$heat_swap;
+		if($co>$st)
+		$ave_heat_swap=abs($hot[$co]-$hot[$st])/($step[$co]-$step[$st]);
+		if($conti)$ave_heat_swap=$sum*$lz/$co/$excRate;
+		$J=$ave_heat_swap/($timestep);
+		$flux_src=$J/(2*$S);
+		$fx[$co]=$flux_src;
+		$co++;
+		}
+		fclose($file);
 	}
-	fclose($file);
-
-}
-if($method=="inject"){
-	$J=$swapEnergyRate;
-	$flux_src=$J/(2*$S);
-	$fx[0]=$flux_src;
-}
+	
+	/* inject method*/
+	if($method=="inject"){
+		$J=$swapEnergyRate;
+		$flux_src=$J/(2*$S);
+		$fx[0]=$flux_src;
+	}
 	return array($flux_src,$fx);
 }
 
 #if(!$upP)
 $upP=2;
-#calculate slope
+
+/**
+ * nvt方法的平均斜率
+ * @author zhouy
+ * @input 时间平均后的温度分布等
+ * @output 斜率，平均热流*平均原子数，热流*原子数的平均
+ */
 function nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 	$m=count($aveC);
-$downP=$upP;
-$pt1=$downP;
-$pt2=$m+1-$upP;
-$pt1--;$pt2--;
-$n=$pt2-$pt1+1;
-$savejx=array_slice($avejx,$pt1,$n);
-$saveN=array_slice($aveN,$pt1,$n);
-$ave_jx=arr_ave(arr_abs($savejx));
-$ave_N=arr_ave($saveN);
-$J_bulk=$ave_jx*$ave_N;
-$J_bulkc=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
-$slope=abs(slope($aveC,$aveTemp,$pt1,$pt2));
-return array($slope,$J_bulk,$J_bulkc);
+	$downP=$upP;
+	$pt1=$downP;
+	$pt2=$m+1-$upP;
+	$pt1--;$pt2--;
+	$n=$pt2-$pt1+1;
+	$savejx=array_slice($avejx,$pt1,$n);
+	$saveN=array_slice($aveN,$pt1,$n);
+	$ave_jx=arr_ave(arr_abs($savejx));
+	$ave_N=arr_ave($saveN);
+	$J_bulk=$ave_jx*$ave_N;
+	$J_bulkc=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
+	$slope=abs(slope($aveC,$aveTemp,$pt1,$pt2));
+	return array($slope,$J_bulk,$J_bulkc);
 }
+
+/**
+ * muller方法的平均斜率
+ * @author zhouy
+ * @input 时间平均后的温度分布等
+ * @output 斜率，平均热流*平均原子数，热流*原子数的平均
+ */
 function mullerSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
-		$m=count($aveC);
-$downP=$upP;
-$cter=floor(($m+1)/2);
-$pt11=$downP;$pt12=$cter-$upP;
-$pt22=$m+1-$downP;$pt21=$cter+$upP;
-$pt11--;$pt12--;$pt21--;$pt22--;
-$slope1=slope($aveC,$aveTemp,$pt11,$pt12);
-$n=$pt12-$pt11+1;
-$savejx=array_slice($avejx,$pt11,$n);
-$saveN=array_slice($aveN,$pt11,$n);
-$ave_jx=arr_ave(arr_abs($savejx));
-$ave_N=arr_ave($saveN);
-$J_bulk1=$ave_jx*$ave_N;
-$J_bulkc1=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
-$slope2=-slope($aveC,$aveTemp,$pt21,$pt22);
-$n=$pt22-$pt21+1;
-$savejx=array_slice($avejx,$pt21,$n);
-$saveN=array_slice($aveN,$pt21,$n);
-$ave_jx=arr_ave(arr_abs($savejx));
-$ave_N=arr_ave($saveN);
-$J_bulk2=$ave_jx*$ave_N;
-$J_bulkc2=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
-$slope=($slope1+$slope2)/2;
-$J_bulk=($J_bulk1+$J_bulk2)/2;
-$J_bulkc=($J_bulkc1+$J_bulkc2)/2;
-return array($slope,$J_bulk,$J_bulkc);
+	$m=count($aveC);
+	$downP=$upP;
+	$cter=floor(($m+1)/2);
+	$pt11=$downP;$pt12=$cter-$upP;
+	$pt22=$m+1-$downP;$pt21=$cter+$upP;
+	$pt11--;$pt12--;$pt21--;$pt22--;
+	$slope1=slope($aveC,$aveTemp,$pt11,$pt12);
+	$n=$pt12-$pt11+1;
+	$savejx=array_slice($avejx,$pt11,$n);
+	$saveN=array_slice($aveN,$pt11,$n);
+	$ave_jx=arr_ave(arr_abs($savejx));
+	$ave_N=arr_ave($saveN);
+	$J_bulk1=$ave_jx*$ave_N;
+	$J_bulkc1=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
+	$slope2=-slope($aveC,$aveTemp,$pt21,$pt22);
+	$n=$pt22-$pt21+1;
+	$savejx=array_slice($avejx,$pt21,$n);
+	$saveN=array_slice($aveN,$pt21,$n);
+	$ave_jx=arr_ave(arr_abs($savejx));
+	$ave_N=arr_ave($saveN);
+	$J_bulk2=$ave_jx*$ave_N;
+	$J_bulkc2=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
+	$slope=($slope1+$slope2)/2;
+	$J_bulk=($J_bulk1+$J_bulk2)/2;
+	$J_bulkc=($J_bulkc1+$J_bulkc2)/2;
+	return array($slope,$J_bulk,$J_bulkc);
 }
 list($slope,$flux_bulk)=sslope($aveC,$aveTemp,$aveN,$avejx,$upP,$deta,$S);
+
+/**
+ * 平均斜率的接口方法
+ * @author zhouy
+ * @input 时间平均后的温度分布等
+ * @output 斜率，体热流
+ */
 function sslope($aveC,$aveTemp,$aveN,$avejx,$upP,$deta,$S){
 	global $method;
 	if($method=="nvt"){
@@ -224,6 +264,8 @@ fclose($result);
 $fileScan=fopen($fileScanResult,"w");
 fprintf($fileScan,"method:$method\n");
 $numS=0;
+
+/* 考虑到斜率随取的两端点位置有关，给出不同位置条件下计算出的热导率*/
 if($method=="muller"||$method=="inject"){
 	$m=count($aveC);
 	for($upP=1;$upP<$lx/4/$deta;$upP++){
@@ -235,27 +277,26 @@ if($method=="muller"||$method=="inject"){
 		if($pt12-$pt11+1<8)break;
 		$slope1=slope($aveC,$aveTemp,$pt11,$pt12);
 		$n=$pt12-$pt11+1;
-$savejx=array_slice($avejx,$pt11,$n);
-$saveN=array_slice($aveN,$pt11,$n);
-$ave_jx=arr_ave(arr_abs($savejx));
-$ave_N=arr_ave($saveN);
-$J_bulk1=$ave_jx*$ave_N;
-$J_bulkc1=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
+		$savejx=array_slice($avejx,$pt11,$n);
+		$saveN=array_slice($aveN,$pt11,$n);
+		$ave_jx=arr_ave(arr_abs($savejx));
+		$ave_N=arr_ave($saveN);
+		$J_bulk1=$ave_jx*$ave_N;
+		$J_bulkc1=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
 		$slope2=-slope($aveC,$aveTemp,$pt21,$pt22);
 		$n=$pt22-$pt21+1;
-$savejx=array_slice($avejx,$pt21,$n);
-$saveN=array_slice($aveN,$pt21,$n);
-$ave_jx=arr_ave(arr_abs($savejx));
-$ave_N=arr_ave($saveN);
-$J_bulk2=$ave_jx*$ave_N;
-$J_bulkc2=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
+		$savejx=array_slice($avejx,$pt21,$n);
+		$saveN=array_slice($aveN,$pt21,$n);
+		$ave_jx=arr_ave(arr_abs($savejx));
+		$ave_N=arr_ave($saveN);
+		$J_bulk2=$ave_jx*$ave_N;
+		$J_bulkc2=arr_ave(arr_abs(arr_mul($saveN,$savejx)));
 		$slope=($slope1+$slope2)/2;
 		$J_bulk=($J_bulk1+$J_bulk2)/2;
 		$J_bulkc=($J_bulkc1+$J_bulkc2)/2;
-				$J_bulks[$numS]=$J_bulk;
-					$J_bulkcs[$numS]=$J_bulkc;
+		$J_bulks[$numS]=$J_bulk;
+		$J_bulkcs[$numS]=$J_bulkc;
 		$slopes[$numS++]=$slope;
-
 	}
 }
 if($method=="nvt"){
@@ -289,7 +330,12 @@ for($i=0;$i<$numS;$i++){
 }
 fclose($fileScan);
 
-
+/** 
+ * 空间热流对时间的平均, 目的是计算流线，研究热阻的影响是局域的还是非局域的
+ * @author zhouy
+ * @input 各时刻的热流分布
+ * @output 平均热流分布
+ */
 function getJProfile($begin,$fileTempProfile,$fileTempAve){
 	$file=fopen($fileTempProfile,"r");
 	if(!$file)exit("fail to open $fileTempProfile\n");
@@ -328,7 +374,7 @@ function getJProfile($begin,$fileTempProfile,$fileTempAve){
 	$ave=fopen($fileTempAve,"w");
 	fprintf($ave,"id\tjx\tjy\tjz\n");
 	for($i=0;$i<$m;$i++){
-		$id=	$pid[$i];
+		$id=$pid[$i];
 		fprintf($ave,"%d\t%f\t%f\t%f\n",$i+1,$avejx[$id],$avejy[$id],$avejz[$id]);
 	}
 	fclose($ave);

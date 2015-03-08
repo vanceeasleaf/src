@@ -1,6 +1,8 @@
 <?php
 require_once("discript.php");
 require_once("postMini.php");
+
+/* 空格*/
 $s='  ';
 ?>
 #settings
@@ -149,25 +151,29 @@ fix     j_hot all ave/time 1 <?echo $aveRate?> <?echo $aveRate?> v_hot  v_cold f
 <?}?>
 <? if($method!="greenkubo"){
     echo "
-fix	temp_profile    all    ave/spatial  1  $aveRate  $aveRate  x  lower  $deta      v_temp  v_jx file  $fileTempProfile  norm sample units box
-
-";
-if($jprofile){
-echo "
-dump jprofile all custom $dumpRate $fileJProfile id v_jx v_jy v_jz v_temp v_jcx v_jcy v_jcz vx vy vz x y z
-	dump_modify  jprofile sort id
-";
-}
-    }else {
+	fix	temp_profile    all    ave/spatial  1  $aveRate  $aveRate  x  lower  $deta      v_temp  v_jx file  $fileTempProfile  norm sample units box
+	";
+	/* 输出热流空间分布，不计算热导率*/
+	if($jprofile){
+	echo "
+	dump jprofile all custom $dumpRate $fileJProfile id v_jx v_jy v_jz v_temp v_jcx v_jcy v_jcz vx vy vz x y z
+		dump_modify  jprofile sort id
+	";
+	}
+}else {
 
 $v=$lx*$ly*$lz;
 $kb=$boltz[$units];
 $factor=$corRate*$timestep/($v*$kb*$T*$T)*$zfactor*$tcfactor;
+
+/* 用傅里叶变换热流来计算热流关联函数*/
 if($fourierTc){
 echo "
 	fix               j_out  all  ave/time  1  1  1  c_jflux[1] c_jflux[2] c_jflux[3]  file  jin.txt 
 ";
 }
+
+/* 用分子模拟论坛的compute扩展来计算热流关联函数，比lammps自带的更精确*/
 if($computeTc){
 	$rfactor=$tcfactor*$zfactor;
 	if(!$gstart)$gstart=20000;
@@ -187,15 +193,16 @@ variable k22 equal trap(f_ss[4])*$factor
 variable k33 equal trap(f_ss[5])*$factor
 fix output all ave/time 1  1 $aveRate v_k11  v_k22  v_k33 file $fileKappa
 #fix output1 all ave/time $aveRate 1 $aveRate v_k11 v_k22 v_k33 file kappa1.txt ave running
-			";
+";
 
+/* 定时输出热流自关联函数*/
 if($jcf){
 	echo "
 		fix out all ave/time $aveRate 1 $aveRate f_ss[3] f_ss[4] f_ss[5] mode vector file jcf*.txt
 		";
 		}
 		}
-    }
+}
 if($method=="muller"){
 	$Nswapbins=2*floor($lx/(2*$nswap*$deta));
 	$factor=$lz/($excRate*$timestep)/(2*$S)/(1/$lp)*$zfactor*$tcfactor;
@@ -217,12 +224,15 @@ variable          thermal_conductivity equal $swapEnergyRate/(1e-10+f_delta_out)
 fix               thermal_conductivity_out  all  ave/time  $aveRate  1   $aveRate  v_thermal_conductivity   file  $fileTherCon
 ";
 }
-if($dumpxyz){
 
+/* 定时输出dump文件并按id排序*/
+if($dumpxyz){
     echo "
 dump dump1 all atom $dumpRate $fileDump
 dump_modify  dump1 sort id
 ";}
+
+/* 定时输出速度文件用于计算速度关联函数*/
 if($dumpv){
 		    echo "
 dump dump2 all custom $dumpRate $fileDumpVelocity type vx vy vz

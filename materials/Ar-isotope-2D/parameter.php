@@ -16,7 +16,7 @@ $xlen=2*.844*8.000000*Unit($srcUnit,"l");
 $ylen=2*.844*8.000000*Unit($srcUnit,"l");
 $thick=2*.844*8*Unit($srcUnit,"l");
 $deta=2*.844*.25*Unit($srcUnit,"l");
-$latx=8;$laty=8;$latz=8;
+$latx=80;$laty=8;$latz=1;
 $T=.61*Unit("lj","T");//K for all units
 $Thi=$T+0.02*Unit("lj","T");
 $Tlo=$T - 0.02*Unit("lj","T");

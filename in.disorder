@@ -1,12 +1,13 @@
-units            metal
+units            lj
 atom_style atomic
 boundary p p p
 dimension 3
  newton off
- read_data ../structure
-pair_style        lj/cut 19
+ #read_data ../structure
+read_restart ../restart.minimize
+pair_style        lj/cut 6
 pair_coeff      * * 1 1
-compute myRDF all rdf_diff 1000 2 2 
+compute myRDF all rdf_diff 1000 1 1 
 compute myRDF1 all rdf_diff 1000 1 2 
 compute myRDF2 all rdf_diff 1000 2 1 
 compute myRDF3 all rdf_diff 1000 1 1 
