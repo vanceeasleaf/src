@@ -1,6 +1,6 @@
 <?php
 /**
- * MDÉú³ÉµÄÎÄ¼şµÄºó´¦Àí
+ * MDç”Ÿæˆçš„æ–‡ä»¶çš„åå¤„ç†
  * @author zhouy
  */
  
@@ -9,7 +9,7 @@ require_once("postMini.php");
 $result=fopen($fileResult,"w");
 fprintf($result,"method:$method\n");
 
-/* greenkubo·¨µÄºó´¦Àí*/
+/* greenkuboæ³•çš„åå¤„ç†*/
 if($method=="greenkubo"){
 	if($computeTc){
 		$projHome=dirname($fileKappa);
@@ -38,7 +38,7 @@ if($method=="greenkubo"){
 }
 
 /**
- * ÇóÆ½¾ùÎÂ¶È·Ö²¼ºÍÆ½¾ùÈÈÁ÷·Ö²¼
+ * æ±‚å¹³å‡æ¸©åº¦åˆ†å¸ƒå’Œå¹³å‡çƒ­æµåˆ†å¸ƒ
  */
 function getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$tcfactor,$zfactor){
 	$file=fopen($fileTempProfile,"r");
@@ -107,7 +107,7 @@ function getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$
 	}
 	fclose($ave);
 	
-	/* ×÷Í¼*/
+	/* ä½œå›¾*/
 	$home=dirname(__FILE__);
 	shell_exec("cp $home/plot/tempAve.dis $projHome;cd $projHome;gnuplot tempAve.dis 2>>err;");
 	return array($aveC,$aveN,$aveTemp,$avejx);
@@ -117,10 +117,10 @@ function getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$
 list($flux_src,$fx)=getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate);
 list($aveC,$aveN,$aveTemp,$avejx)=getTempProfile($begin,$fileTempProfile,$fileTempAve,$fx,$upP,$deta,$S,$tcfactor,$zfactor);
 /**
- * »ñµÃ¸÷·ÇÆ½ºâ·½·¨µÄÈÈÁ÷
+ * è·å¾—å„éå¹³è¡¡æ–¹æ³•çš„çƒ­æµ
  * @author zhouy
  * @input 
- * @output ×îºóÆ½¾ùµÄÈÈÁ÷£¬Ç°N¶ÎÊ±¼äµÄÆ½¾ùÈÈÁ÷
+ * @output æœ€åå¹³å‡çš„çƒ­æµï¼Œå‰Næ®µæ—¶é—´çš„å¹³å‡çƒ­æµ
  */
 function getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$excRate,$swapEnergyRate){
 	$fx=array();
@@ -181,10 +181,10 @@ function getFlux($method,$fileNvtWork,$begin,$timestep,$S,$fileSwap,$conti,$lz,$
 $upP=2;
 
 /**
- * nvt·½·¨µÄÆ½¾ùĞ±ÂÊ
+ * nvtæ–¹æ³•çš„å¹³å‡æ–œç‡
  * @author zhouy
- * @input Ê±¼äÆ½¾ùºóµÄÎÂ¶È·Ö²¼µÈ
- * @output Ğ±ÂÊ£¬Æ½¾ùÈÈÁ÷*Æ½¾ùÔ­×ÓÊı£¬ÈÈÁ÷*Ô­×ÓÊıµÄÆ½¾ù
+ * @input æ—¶é—´å¹³å‡åçš„æ¸©åº¦åˆ†å¸ƒç­‰
+ * @output æ–œç‡ï¼Œå¹³å‡çƒ­æµ*å¹³å‡åŸå­æ•°ï¼Œçƒ­æµ*åŸå­æ•°çš„å¹³å‡
  */
 function nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 	$m=count($aveC);
@@ -204,10 +204,10 @@ function nvtSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 }
 
 /**
- * muller·½·¨µÄÆ½¾ùĞ±ÂÊ
+ * mulleræ–¹æ³•çš„å¹³å‡æ–œç‡
  * @author zhouy
- * @input Ê±¼äÆ½¾ùºóµÄÎÂ¶È·Ö²¼µÈ
- * @output Ğ±ÂÊ£¬Æ½¾ùÈÈÁ÷*Æ½¾ùÔ­×ÓÊı£¬ÈÈÁ÷*Ô­×ÓÊıµÄÆ½¾ù
+ * @input æ—¶é—´å¹³å‡åçš„æ¸©åº¦åˆ†å¸ƒç­‰
+ * @output æ–œç‡ï¼Œå¹³å‡çƒ­æµ*å¹³å‡åŸå­æ•°ï¼Œçƒ­æµ*åŸå­æ•°çš„å¹³å‡
  */
 function mullerSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 	$m=count($aveC);
@@ -240,10 +240,10 @@ function mullerSlope($aveC,$aveTemp,$aveN,$avejx,$upP){
 list($slope,$flux_bulk)=sslope($aveC,$aveTemp,$aveN,$avejx,$upP,$deta,$S);
 
 /**
- * Æ½¾ùĞ±ÂÊµÄ½Ó¿Ú·½·¨
+ * å¹³å‡æ–œç‡çš„æ¥å£æ–¹æ³•
  * @author zhouy
- * @input Ê±¼äÆ½¾ùºóµÄÎÂ¶È·Ö²¼µÈ
- * @output Ğ±ÂÊ£¬ÌåÈÈÁ÷
+ * @input æ—¶é—´å¹³å‡åçš„æ¸©åº¦åˆ†å¸ƒç­‰
+ * @output æ–œç‡ï¼Œä½“çƒ­æµ
  */
 function sslope($aveC,$aveTemp,$aveN,$avejx,$upP,$deta,$S){
 	global $method;
@@ -265,7 +265,7 @@ $fileScan=fopen($fileScanResult,"w");
 fprintf($fileScan,"method:$method\n");
 $numS=0;
 
-/* ¿¼ÂÇµ½Ğ±ÂÊËæÈ¡µÄÁ½¶ËµãÎ»ÖÃÓĞ¹Ø£¬¸ø³ö²»Í¬Î»ÖÃÌõ¼şÏÂ¼ÆËã³öµÄÈÈµ¼ÂÊ*/
+/* è€ƒè™‘åˆ°æ–œç‡éšå–çš„ä¸¤ç«¯ç‚¹ä½ç½®æœ‰å…³ï¼Œç»™å‡ºä¸åŒä½ç½®æ¡ä»¶ä¸‹è®¡ç®—å‡ºçš„çƒ­å¯¼ç‡*/
 if($method=="muller"||$method=="inject"){
 	$m=count($aveC);
 	for($upP=1;$upP<$lx/4/$deta;$upP++){
@@ -331,10 +331,10 @@ for($i=0;$i<$numS;$i++){
 fclose($fileScan);
 
 /** 
- * ¿Õ¼äÈÈÁ÷¶ÔÊ±¼äµÄÆ½¾ù, Ä¿µÄÊÇ¼ÆËãÁ÷Ïß£¬ÑĞ¾¿ÈÈ×èµÄÓ°ÏìÊÇ¾ÖÓòµÄ»¹ÊÇ·Ç¾ÖÓòµÄ
+ * ç©ºé—´çƒ­æµå¯¹æ—¶é—´çš„å¹³å‡, ç›®çš„æ˜¯è®¡ç®—æµçº¿ï¼Œç ”ç©¶çƒ­é˜»çš„å½±å“æ˜¯å±€åŸŸçš„è¿˜æ˜¯éå±€åŸŸçš„
  * @author zhouy
- * @input ¸÷Ê±¿ÌµÄÈÈÁ÷·Ö²¼
- * @output Æ½¾ùÈÈÁ÷·Ö²¼
+ * @input å„æ—¶åˆ»çš„çƒ­æµåˆ†å¸ƒ
+ * @output å¹³å‡çƒ­æµåˆ†å¸ƒ
  */
 function getJProfile($begin,$fileTempProfile,$fileTempAve){
 	$file=fopen($fileTempProfile,"r");

@@ -22,8 +22,8 @@ function pwrite($fp,$s){
 }
 
 function tabjoin(){
-	  $argc = func_num_args();    #»ñÈ¡²ÎÊı¸öÊı
-        $argv = func_get_args();    #»ñÈ¡²ÎÊıÖµ
+	  $argc = func_num_args();    #è·å–å‚æ•°ä¸ªæ•°
+        $argv = func_get_args();    #è·å–å‚æ•°å€¼
         $s="";
         for($i=0;$i<$argc;$i++){
         	$s.=$argv[$i];
@@ -69,41 +69,41 @@ function query(){
 	$result=fopen("$projHome/result.txt","w");
 	
 	  /**
-	  * qloops.txtµÄ´¦Àí·ÖÎªÒÔÏÂ¼¸ÖÖÇé¿ö:
-	  * Õı³£Çé¿ö£ºÍ¨¹ıphp sub.phpÍ¶ÈÎÎñ²¢Éú³Éqloops.txtÒÔºó
-	  * ¹¤³Ì±»¸´ÖÆÒÔºó
-	  * ¹¤³Ì±»ÒÆ¶¯ÒÔºó
-	  * ¸ÃÎÄ¼ş²»´æÔÚÊ±
+	  * qloops.txtçš„å¤„ç†åˆ†ä¸ºä»¥ä¸‹å‡ ç§æƒ…å†µ:
+	  * æ­£å¸¸æƒ…å†µï¼šé€šè¿‡php sub.phpæŠ•ä»»åŠ¡å¹¶ç”Ÿæˆqloops.txtä»¥å
+	  * å·¥ç¨‹è¢«å¤åˆ¶ä»¥å
+	  * å·¥ç¨‹è¢«ç§»åŠ¨ä»¥å
+	  * è¯¥æ–‡ä»¶ä¸å­˜åœ¨æ—¶
 	  */
         $obj=getObjs("$projHome/qloops.txt");
 
-	  /* workµÄ¹ÌÓĞÊôĞÔ*/
+	  /* workçš„å›ºæœ‰å±æ€§*/
          echo "id\tpercent\tstatus\tqueue\tprocs";
          fprintf($result,"id");
          
-         /* work¸²¸Ç¹ıµÄ²ÎÊı*/
+         /* workè¦†ç›–è¿‡çš„å‚æ•°*/
          $paras=getParas($obj);
          foreach ($paras as $para){
          	 pwrite($result,"\t".$para);
          }
          
-         /* workµÄ¼ÆËã½á¹û*/
+         /* workçš„è®¡ç®—ç»“æœ*/
          pwrite($result,"\tkappa\ttotalE\tNatom\tE/N\tdisorder\trd\tdisorderC\tratio\trdfs\n");
          
          checkUniverse($projHome$universe);
 
-        /* ±éÀúprojetÖĞµÄËùÓĞwork*/
+        /* éå†projetä¸­çš„æ‰€æœ‰work*/
         foreach($obj as $ob){
         	$id=$ob["id"];
         	$pid=$ob["pid"];
         	$runTime=$ob["runTime"];
         	
-     	/* workµÄ¹ÌÓĞÊôĞÔ*/
+     	/* workçš„å›ºæœ‰å±æ€§*/
         	list($percent,$status,$queue,$nodes,$procs)=getQueryInfo("$projHome/$id",$pid,$runTime,$ob);
         	echo tabjoin($id,$percent,$status,$queue,$nodes."x".$procs);
         	fprintf($result,"$id\t");
         	
-        	/* work¸²¸Ç¹ıµÄ²ÎÊı*/
+        	/* workè¦†ç›–è¿‡çš„å‚æ•°*/
         	for($j=0;$j<count($paras);$j++){
         		$key=$paras[$j];
 	         	 printf("\t%s",$ob[$key]===""?"def":$ob[$key]);
@@ -112,10 +112,10 @@ function query(){
 	         	 }
          	 }
          	 
-         	 /* workµÄ¼ÆËã½á¹û*/
+         	 /* workçš„è®¡ç®—ç»“æœ*/
          	 if($percent+0>0){
          	          	  
- 	          	  /* ×¼±¸²ÎÊıÁĞ±í²¢µ÷ÓÃºó´¦Àí*/
+ 	          	  /* å‡†å¤‡å‚æ•°åˆ—è¡¨å¹¶è°ƒç”¨åå¤„ç†*/
  	          	  $dir="$projHome/$id";
  	          	  $dir=preg_replace("/\//","\\\/",$dir);
  	          	  $sed="sed 's/projHome=.\+/projHome=\"".$dir."\";/g ' qloop.php>qloop.php1";
@@ -123,17 +123,17 @@ function query(){
  	          	  else $postfile="";
  	          	  passthru("cd $projHome/$id;$sed;cat qloop.php1 $postfile>qloop.php2;$php $srcHome/profile.php \"$projHome/$id/qloop.php2\" \"$projHome/$id/species.php\";");
  	          
-         	          /* È¡³öºó´¦Àí½á¹û£¬ÈÈµ¼ÂÊ*/
+         	          /* å–å‡ºåå¤„ç†ç»“æœï¼Œçƒ­å¯¼ç‡*/
          	          $kappaline=shell_exec("cd $projHome/$id;tail -1 result.txt;");
          	          $kappa=trim(substr($kappaline,strpos($kappaline,'=')+1));
          	          pwrite($result,"$kappa");
          	          
-         	          /* ×ÜÄÜÁ¿*/
+         	          /* æ€»èƒ½é‡*/
          	          $totalEline=shell_exec("cd $projHome/$id/minimize;tail -22 log.out| head -1;");
          	          list($null,$totalE)=sscanf($totalEline,"%d%f");
          	          pwrite($result,"\t$totalE");
          	        
-         	          /* Ô­×ÓÊıºÍÆ½¾ùÄÜÁ¿*/
+         	          /* åŸå­æ•°å’Œå¹³å‡èƒ½é‡*/
          	          $Natomline=shell_exec("cd $projHome/$id/minimize;head -5 log.out|tail -1 ;");
          	          list($Natom)=sscanf($Natomline,"%d");
          	          if($Natom){
@@ -142,7 +142,7 @@ function query(){
          	        //pwrite($result,"\t$epn");
          	          }
          	          
-         	          /* ÎŞĞò¶È*/
+         	          /* æ— åºåº¦*/
          	           $disorderLine=shell_exec("cd $projHome/$id/minimize;mkdir disorder 2>err;cd disorder;cp $srcHome/in.disorder .;$APP_PATH<in.disorder 2>err 1>log;tail -1 disorder.txt  2>err;");
          	          list($null,$disorder,$rd)=sscanf($disorderLine,"%d%f%f");
          	          pwrite($result,"\t$disorder\t$rd");
@@ -153,7 +153,7 @@ function query(){
          	          //list($null,$disorderC)=sscanf($disorderLine,"%d%f");
          	          //pwrite($result,"\t$disorderC");
          	          
-         	          /* ²ôÔÓ±ÈÀı*/
+         	          /* æºæ‚æ¯”ä¾‹*/
          	         // $ratio=getRatio("$projHome/$id/minimize/structure");
          	          pwrite($result,"\t$ratio");
          	          
@@ -172,7 +172,7 @@ function query(){
 }
 
 /**
- * Îª¶àÈÎÎñ²¢¹ì×¼±¸ÎÄ¼ş
+ * ä¸ºå¤šä»»åŠ¡å¹¶è½¨å‡†å¤‡æ–‡ä»¶
  * @author zhouy
  */
 function checkUniverse($projHome,$universe){
@@ -195,7 +195,7 @@ function checkUniverse($projHome,$universe){
 }
 
 /**
- * »ñÈ¡ÈÎÎñµÄ¹ÌÓĞÊôĞÔ
+ * è·å–ä»»åŠ¡çš„å›ºæœ‰å±æ€§
  * @author zhouy
  */
 function getQueryInfo($workPath,$pid,$runTime,$ob){
@@ -203,18 +203,18 @@ function getQueryInfo($workPath,$pid,$runTime,$ob){
 	$qstat=@shell_exec("qstat $pid 2>&1|tail -1 ");
 	list($step)=sscanf($lastline,"%d");
 	$percent=sprintf("%.1f%%",$step/$runTime*100);
-	if(strpos($qstat,"Unknown Job Id")){/*¸ÃÈÎÎñÒÑ´ÓÈÎÎñ¶ÓÁĞÖĞÈ¥³ı*/
+	if(strpos($qstat,"Unknown Job Id")){/*è¯¥ä»»åŠ¡å·²ä»ä»»åŠ¡é˜Ÿåˆ—ä¸­å»é™¤*/
 		$time="complete";
 		if(strpos($lastline,"builds")){
 			$status="C";
 			$percent="100%";
-		}else{/*Òì³£ÍË³ö*/
+		}else{/*å¼‚å¸¸é€€å‡º*/
 			$status="E";
 		}
 		$queue=$ob["queue"];
 		$nodes=$ob["nodes"];
 		$procs=$ob["procs"];
-	}else{/*ÕıÔÚÔËĞĞ»òµÈ´ıR&Q&C*/
+	}else{/*æ­£åœ¨è¿è¡Œæˆ–ç­‰å¾…R&Q&C*/
 		list($null,$null,$null,$time,$status,$queue)=sscanf($qstat,"%s%s%s%s%s%s");
 		$info=shell_exec("qstat -f $pid 2>&1|grep nodes");
 		list($null,$null,$info)=sscanf($info,"%s%s%s");
@@ -238,7 +238,7 @@ function comfirmStop(){
 	global $projHome;
 	global $single;
 	
-	/* ÈİÒ×killµôÍ¬Ãû¹¤³Ì³ÌĞò*/
+	/* å®¹æ˜“killæ‰åŒåå·¥ç¨‹ç¨‹åº*/
 	if($single){
 		$obj=getObjs("$projHome/qloops.txt");
 	      for($i=0;$i<count($obj);$i++){
@@ -272,7 +272,7 @@ function comfirmStop(){
 		}
 	}
 		/*
-//¸´ÖÆÎÄ¼ş¼ĞºóÈİÒ×killµôÔ­À´¹¤³ÌµÄ³ÌĞò
+//å¤åˆ¶æ–‡ä»¶å¤¹åå®¹æ˜“killæ‰åŸæ¥å·¥ç¨‹çš„ç¨‹åº
 		$qloop=fopen("qloops.txt","r");
 $n=0;			
 while($json_string=fgets($qloop)){
@@ -287,7 +287,7 @@ while($json_string=fgets($qloop)){
 }
 function getObjs($fileName){
 	
-	/*Ö´ĞĞ³ÌĞòÖ®Ç°»áÇåÀíÉÏ´ÎµÄ£¬¶ÁÈ¡qloop.txt£¬Èç¹ûÃ»ÓĞÉÏ´ÎµÄÎÄ¼ş¾Í²»ÇåÀí¡£*/
+	/*æ‰§è¡Œç¨‹åºä¹‹å‰ä¼šæ¸…ç†ä¸Šæ¬¡çš„ï¼Œè¯»å–qloop.txtï¼Œå¦‚æœæ²¡æœ‰ä¸Šæ¬¡çš„æ–‡ä»¶å°±ä¸æ¸…ç†ã€‚*/
 	if(!is_file($fileName))return;
 		$qloop=fopen($fileName,"r");
 		$n=0;
@@ -298,7 +298,7 @@ function getObjs($fileName){
 }
 
 /**
- * »ñÈ¡ÓĞĞ§²ÎÊı£¬ÅÅ³ıÄÇĞ©ÒÑ¾­¿¼ÂÇ¹ıµÄ
+ * è·å–æœ‰æ•ˆå‚æ•°ï¼Œæ’é™¤é‚£äº›å·²ç»è€ƒè™‘è¿‡çš„
  * @author zhouy
  */
 function getParas($obj){
@@ -334,7 +334,7 @@ function clean(){
 	if($s!="y")exit();
 	comfirmStop();
 	
-	/*É¾³ıÔ­Ê¼´úÂëÒÔÍâµÄÎÄ¼ş*/	
+	/*åˆ é™¤åŸå§‹ä»£ç ä»¥å¤–çš„æ–‡ä»¶*/	
 	$file=shell_exec("cd $projHome;ls ");
 	while(list($ls)=sscanf($file,"%s")){
 		if($ls=="sub.php"||$ls=="post.php"||$ls=="data")continue;

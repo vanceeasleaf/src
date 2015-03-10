@@ -1,5 +1,5 @@
 <?php
-/* 程序中用到的所有文件名*/
+/* 绋嬪簭涓敤鍒扮殑鎵�鏈夋枃浠跺悕*/
 $fileTempProfile="$projHome/tempProfile.txt";
 $fileTempAve="$projHome/tempAve.txt";
 $fileXRange="$projHome/minimize/minimize.xyz";
@@ -28,7 +28,7 @@ require_once("$home/materials/".$species."/disp.php");
 $home=dirname(__FILE__);	
 require_once("$home/funcs.php");
 
-/* 将热导率转化为国际单位的因子*/
+/* 灏嗙儹瀵肩巼杞寲涓哄浗闄呭崟浣嶇殑鍥犲瓙*/
 $tcfactor=($boltz["si"]*$kelvin["si"])/($boltz[$units]*$kelvin[$units])*$femtosecond[$units]/$femtosecond["si"]*$angstrom[$units]/$angstrom["si"]*$kelvin[$units]/$kelvin["si"];//the unit is J/s/m/K
 
     

@@ -42,7 +42,7 @@ for($i=0;$i<$natom;$i++){
 	fprintf($fdebug,"$nC\t$a\t$b\n");
 	$nC++;//fprintf($fdebug,"$nC\n");
 }
-//不等价的C个数	
+//涓嶇瓑浠风殑C涓暟	
 $nonequ=array();
 for($i=0;$i<$nC;$i++){
 	$flag=1;//fprintf($fdebug,"$nnei[$i]\t");

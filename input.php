@@ -2,7 +2,7 @@
 require_once("discript.php");
 require_once("postMini.php");
 
-/* ¿Õ¸ñ*/
+/* ç©ºæ ¼*/
 $s='  ';
 ?>
 #settings
@@ -153,7 +153,7 @@ fix     j_hot all ave/time 1 <?echo $aveRate?> <?echo $aveRate?> v_hot  v_cold f
     echo "
 	fix	temp_profile    all    ave/spatial  1  $aveRate  $aveRate  x  lower  $deta      v_temp  v_jx file  $fileTempProfile  norm sample units box
 	";
-	/* Êä³öÈÈÁ÷¿Õ¼ä·Ö²¼£¬²»¼ÆËãÈÈµ¼ÂÊ*/
+	/* è¾“å‡ºçƒ­æµç©ºé—´åˆ†å¸ƒï¼Œä¸è®¡ç®—çƒ­å¯¼ç‡*/
 	if($jprofile){
 	echo "
 	dump jprofile all custom $dumpRate $fileJProfile id v_jx v_jy v_jz v_temp v_jcx v_jcy v_jcz vx vy vz x y z
@@ -166,14 +166,14 @@ $v=$lx*$ly*$lz;
 $kb=$boltz[$units];
 $factor=$corRate*$timestep/($v*$kb*$T*$T)*$zfactor*$tcfactor;
 
-/* ÓÃ¸µÀïÒ¶±ä»»ÈÈÁ÷À´¼ÆËãÈÈÁ÷¹ØÁªº¯Êı*/
+/* ç”¨å‚…é‡Œå¶å˜æ¢çƒ­æµæ¥è®¡ç®—çƒ­æµå…³è”å‡½æ•°*/
 if($fourierTc){
 echo "
 	fix               j_out  all  ave/time  1  1  1  c_jflux[1] c_jflux[2] c_jflux[3]  file  jin.txt 
 ";
 }
 
-/* ÓÃ·Ö×ÓÄ£ÄâÂÛÌ³µÄcomputeÀ©Õ¹À´¼ÆËãÈÈÁ÷¹ØÁªº¯Êı£¬±Èlammps×Ô´øµÄ¸ü¾«È·*/
+/* ç”¨åˆ†å­æ¨¡æ‹Ÿè®ºå›çš„computeæ‰©å±•æ¥è®¡ç®—çƒ­æµå…³è”å‡½æ•°ï¼Œæ¯”lammpsè‡ªå¸¦çš„æ›´ç²¾ç¡®*/
 if($computeTc){
 	$rfactor=$tcfactor*$zfactor;
 	if(!$gstart)$gstart=20000;
@@ -195,7 +195,7 @@ fix output all ave/time 1  1 $aveRate v_k11  v_k22  v_k33 file $fileKappa
 #fix output1 all ave/time $aveRate 1 $aveRate v_k11 v_k22 v_k33 file kappa1.txt ave running
 ";
 
-/* ¶¨Ê±Êä³öÈÈÁ÷×Ô¹ØÁªº¯Êı*/
+/* å®šæ—¶è¾“å‡ºçƒ­æµè‡ªå…³è”å‡½æ•°*/
 if($jcf){
 	echo "
 		fix out all ave/time $aveRate 1 $aveRate f_ss[3] f_ss[4] f_ss[5] mode vector file jcf*.txt
@@ -225,14 +225,14 @@ fix               thermal_conductivity_out  all  ave/time  $aveRate  1   $aveRat
 ";
 }
 
-/* ¶¨Ê±Êä³ödumpÎÄ¼ş²¢°´idÅÅĞò*/
+/* å®šæ—¶è¾“å‡ºdumpæ–‡ä»¶å¹¶æŒ‰idæ’åº*/
 if($dumpxyz){
     echo "
 dump dump1 all atom $dumpRate $fileDump
 dump_modify  dump1 sort id
 ";}
 
-/* ¶¨Ê±Êä³öËÙ¶ÈÎÄ¼şÓÃÓÚ¼ÆËãËÙ¶È¹ØÁªº¯Êı*/
+/* å®šæ—¶è¾“å‡ºé€Ÿåº¦æ–‡ä»¶ç”¨äºè®¡ç®—é€Ÿåº¦å…³è”å‡½æ•°*/
 if($dumpv){
 		    echo "
 dump dump2 all custom $dumpRate $fileDumpVelocity type vx vy vz

@@ -1,16 +1,16 @@
 <?php
 /** 
- * Ò»Ð©¹¤¾ßº¯Êý
+ * ä¸€äº›å·¥å…·å‡½æ•°
  * @author zhouy
  */
 
-/* ²úÉú0-1Ö®¼äµÄËæ»úÊý£¬°üÀ¨0²»°üÀ¨1*/
+/* äº§ç”Ÿ0-1ä¹‹é—´çš„éšæœºæ•°ï¼ŒåŒ…æ‹¬0ä¸åŒ…æ‹¬1*/
 function random01()
 {
 	return mt_rand() / mt_getrandmax();
 }
 
-/* É¾³ýµ±Ç°Ä¿Â¼ÏÂµÄÒ»¸ö»ò¶à¸öÎÄ¼þ»òÎÄ¼þ¼Ð*/
+/* åˆ é™¤å½“å‰ç›®å½•ä¸‹çš„ä¸€ä¸ªæˆ–å¤šä¸ªæ–‡ä»¶æˆ–æ–‡ä»¶å¤¹*/
 function rm($file){
 	$paramNum = func_num_args();    
 	$params = func_get_args();    
@@ -21,7 +21,7 @@ function rm($file){
 	}
 }
 
-/* »ñµÃÒ»¸öÊý×éµÄÆ½¾ùÖµ*/
+/* èŽ·å¾—ä¸€ä¸ªæ•°ç»„çš„å¹³å‡å€¼*/
 function arr_ave($array){
 	$n=count($array);
 	$sum=0;
@@ -31,7 +31,7 @@ function arr_ave($array){
 	return $sum/$n;
 }
 
-/* ÖðÏîÉú³ÉÒ»¸öÊý×éµÄ¾ø¶ÔÖµ*/
+/* é€é¡¹ç”Ÿæˆä¸€ä¸ªæ•°ç»„çš„ç»å¯¹å€¼*/
 function arr_abs($array){
 	$out=array();
 	for($i=0;$i<count($array);$i++){
@@ -40,7 +40,7 @@ function arr_abs($array){
 	return $out;
 }
 
-/* ÏòÁ¿ÄÚ»ý*/
+/* å‘é‡å†…ç§¯*/
 function arr_mul($array,$b){
 	$out=array();
 	for($i=0;$i<count($array);$i++){
